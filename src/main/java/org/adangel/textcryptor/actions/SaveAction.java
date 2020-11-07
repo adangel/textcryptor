@@ -4,7 +4,9 @@ import java.awt.event.ActionEvent;
 import java.util.function.Supplier;
 
 import javax.swing.AbstractAction;
+import javax.swing.JOptionPane;
 
+import org.adangel.textcryptor.PasswordDialog;
 import org.adangel.textcryptor.Storage;
 
 public class SaveAction extends AbstractAction {
@@ -19,7 +21,16 @@ public class SaveAction extends AbstractAction {
     
     @Override
     public void actionPerformed(ActionEvent e) {
-        Storage storage = new Storage();
-        storage.save(textSupplier.get());
+        PasswordDialog dialog = new PasswordDialog(null);
+        dialog.dispose();
+        if (dialog.getEnteredPassword() != null) {
+            System.out.println("after pw dialog: " + new String(dialog.getEnteredPassword()));
+            Storage storage = new Storage();
+            storage.save(textSupplier.get(), dialog.getEnteredPassword());
+        } else {
+            JOptionPane.showMessageDialog(null, "No password given... exiting");
+            System.exit(0);
+        }
+
     }
 }

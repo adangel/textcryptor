@@ -3,7 +3,6 @@ package org.adangel.textcryptor;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -11,13 +10,13 @@ import java.nio.file.StandardOpenOption;
 
 public class Storage {
 
-    public String load() {
+    public String load(char[] pw) {
         Path data = determineDataPath();
         if (Files.exists(data)) {
             try {
                 byte[] raw = Files.readAllBytes(data);
                 Crypter crypter = new Crypter();
-                return crypter.decrypt(raw);
+                return crypter.decrypt(raw, pw);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -41,11 +40,11 @@ public class Storage {
         return data;
     }
     
-    public void save(String text) {
+    public void save(String text, char[] pw) {
         Path data = determineDataPath();
         try {
             Crypter crypter = new Crypter();
-            byte[] raw = crypter.encrypt(text);
+            byte[] raw = crypter.encrypt(text, pw);
             Files.write(data, raw,
                     StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
         } catch (IOException e) {

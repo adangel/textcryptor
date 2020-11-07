@@ -30,13 +30,13 @@ public class Crypter {
     private final byte[] iv = new byte[] {1,2,3,4,5,6,7,8,9,10,11,12}; // 12 bytes
     private final byte[] salt = new byte[] {1,2,3,4,5,6,7,8};
 
-    private Cipher getCipher(int mode) {
+    private Cipher getCipher(int mode, char[] pw) {
         try {
             SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
             //byte[] salt = new byte[8];
             //SecureRandom random = new SecureRandom();
             //random.nextBytes(salt);
-            PBEKeySpec keySpec = new PBEKeySpec(password, salt, iterationCount, keyLength);
+            PBEKeySpec keySpec = new PBEKeySpec(pw, salt, iterationCount, keyLength);
             SecretKey secretKey = keyFactory.generateSecret(keySpec);
             SecretKey secretKeyAes = new SecretKeySpec(secretKey.getEncoded(), "AES");
             
@@ -63,9 +63,9 @@ public class Crypter {
         }
     }
     
-    public byte[] encrypt(String text) {
+    public byte[] encrypt(String text, char[] pw) {
         try {
-            Cipher cipher = getCipher(Cipher.ENCRYPT_MODE);
+            Cipher cipher = getCipher(Cipher.ENCRYPT_MODE, pw);
             
             return cipher.doFinal(text.getBytes(StandardCharsets.UTF_8));
         } catch (IllegalBlockSizeException | BadPaddingException e) {
@@ -73,9 +73,9 @@ public class Crypter {
         }
     }
     
-    public String decrypt(byte[] data) {
+    public String decrypt(byte[] data, char[] pw) {
         try {
-            Cipher cipher = getCipher(Cipher.DECRYPT_MODE);
+            Cipher cipher = getCipher(Cipher.DECRYPT_MODE, pw);
             
             byte[] clear = cipher.doFinal(data);
             return new String(clear, StandardCharsets.UTF_8);

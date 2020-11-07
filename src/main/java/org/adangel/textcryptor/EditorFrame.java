@@ -12,6 +12,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.event.CaretEvent;
@@ -118,16 +119,24 @@ public class EditorFrame {
                 
             }
         });
-        Storage storage = new Storage();
-        textArea.setText(storage.load());
-        textArea.setCaretPosition(0); // TODO restore last position
         
         scrollPane.setRowHeaderView(new JLabel("row header"));
         frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
-        
  
         frame.pack();
         frame.setLocationRelativeTo(null); // center
         frame.setVisible(true);
+        
+        PasswordDialog dialog = new PasswordDialog(frame);
+        dialog.dispose();
+        if (dialog.getEnteredPassword() != null) {
+            System.out.println("after pw dialog: " + new String(dialog.getEnteredPassword()));
+            Storage storage = new Storage();
+            textArea.setText(storage.load(dialog.getEnteredPassword()));
+            textArea.setCaretPosition(0); // TODO restore last position
+        } else {
+            JOptionPane.showMessageDialog(frame, "No password given... exiting");
+            System.exit(0);
+        }
     }
 }
