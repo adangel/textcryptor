@@ -1,4 +1,4 @@
-package org.adangel.textcryptor;
+package org.adangel.textcryptor.storage;
 
 import java.io.IOException;
 import java.net.URI;
@@ -8,24 +8,36 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
-public class Storage {
+import org.adangel.textcryptor.Crypter;
 
-    public String load(char[] pw) {
+public class FileStorage implements Storage {
+
+    public byte[] load() {
         Path data = determineDataPath();
         if (Files.exists(data)) {
             try {
                 byte[] raw = Files.readAllBytes(data);
-                Crypter crypter = new Crypter();
-                return crypter.decrypt(raw, pw);
+                return raw;
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
-        return "(no data exists yet)";
+        return new byte[0];
+    }
+
+    public String load(char[] pw) {
+        byte[] raw = load();
+
+        if (raw.length == 0) {
+            return "(no data exists yet)";
+        }
+
+        Crypter crypter = new Crypter();
+        return crypter.decrypt(raw, pw);
     }
 
     private Path determineDataPath() {
-        URL url = Storage.class.getClassLoader().getResource(Storage.class.getName().replaceAll("\\.", "/") + ".class");
+        URL url = FileStorage.class.getClassLoader().getResource(FileStorage.class.getName().replaceAll("\\.", "/") + ".class");
         String resourceUrl = url.toExternalForm();
         if (!resourceUrl.startsWith("file:")) {
             throw new UnsupportedOperationException("Don't know how to deal with " + resourceUrl);
@@ -39,16 +51,19 @@ public class Storage {
         System.out.println("data path: " + data);
         return data;
     }
-    
-    public void save(String text, char[] pw) {
-        Path data = determineDataPath();
+
+    public void save(byte[] data) {
+        Path filePath = determineDataPath();
         try {
-            Crypter crypter = new Crypter();
-            byte[] raw = crypter.encrypt(text, pw);
-            Files.write(data, raw,
-                    StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+            Files.write(filePath, data, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void save(String text, char[] pw) {
+        Crypter crypter = new Crypter();
+        byte[] raw = crypter.encrypt(text, pw);
+        save(raw);
     }
 }

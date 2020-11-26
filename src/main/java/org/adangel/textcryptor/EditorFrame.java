@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.nio.charset.StandardCharsets;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
@@ -21,6 +22,8 @@ import javax.swing.event.CaretListener;
 import org.adangel.textcryptor.actions.DebugInfoAction;
 import org.adangel.textcryptor.actions.ExitAction;
 import org.adangel.textcryptor.actions.SaveAction;
+import org.adangel.textcryptor.storage.FileStorage;
+import org.adangel.textcryptor.storage.JarStorage;
 
 public class EditorFrame {
 
@@ -131,9 +134,16 @@ public class EditorFrame {
         dialog.dispose();
         if (dialog.getEnteredPassword() != null) {
             System.out.println("after pw dialog: " + new String(dialog.getEnteredPassword()));
-            Storage storage = new Storage();
-            textArea.setText(storage.load(dialog.getEnteredPassword()));
+            
+            JarStorage jarStorage = new JarStorage();
+            if (jarStorage.isJar()) {
+                textArea.setText(new String(jarStorage.load(), StandardCharsets.UTF_8));
+            } else {
+                FileStorage storage = new FileStorage();
+                textArea.setText(storage.load(dialog.getEnteredPassword()));
+            }
             textArea.setCaretPosition(0); // TODO restore last position
+            
         } else {
             JOptionPane.showMessageDialog(frame, "No password given... exiting");
             System.exit(0);

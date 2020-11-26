@@ -95,6 +95,27 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <!-- run with: ./mvnw exec:exec -->
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.0.0</version>
+        <configuration>
+          <executable>java</executable>
+          <arguments>
+            <argument>-jar</argument>
+            <argument>target/textcryptor-${project.version}-jar-with-dependencies.jar</argument>
+          </arguments>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>none</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 

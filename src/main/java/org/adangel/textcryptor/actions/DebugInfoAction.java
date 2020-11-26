@@ -10,6 +10,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 
 import org.adangel.textcryptor.App;
+import org.adangel.textcryptor.storage.JarStorage;
 
 public class DebugInfoAction extends AbstractAction {
     private static final long serialVersionUID = -7142766637058873694L;
@@ -29,6 +30,9 @@ public class DebugInfoAction extends AbstractAction {
         
         URL url = App.class.getClassLoader().getResource(App.class.getName().replaceAll("\\.", "/") + ".class");
         info.setText("url: " + url);
+        
+        JarStorage storage = new JarStorage();
+        storage.load();
         
         dialog.pack();
         dialog.setVisible(true);
