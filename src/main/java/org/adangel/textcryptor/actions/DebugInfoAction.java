@@ -7,7 +7,7 @@ import java.net.URL;
 
 import javax.swing.AbstractAction;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
+import javax.swing.JTextArea;
 
 import org.adangel.textcryptor.App;
 import org.adangel.textcryptor.storage.JarStorage;
@@ -25,14 +25,19 @@ public class DebugInfoAction extends AbstractAction {
         dialog.setTitle("Debug Info");
         dialog.setModalityType(ModalityType.MODELESS);
         dialog.getContentPane().setLayout(new FlowLayout());
-        JLabel info = new JLabel();
+        JTextArea info = new JTextArea();
+        info.setEditable(false);
         dialog.getContentPane().add(info);
         
         URL url = App.class.getClassLoader().getResource(App.class.getName().replaceAll("\\.", "/") + ".class");
         info.setText("url: " + url);
         
         JarStorage storage = new JarStorage();
-        storage.load();
+        if (storage.isJar()) {
+            info.setText(info.getText() + "\n" + "Storage is a JAR file");
+        } else {
+            info.setText(info.getText() + "\n" + "Storage is NOT a jar file");
+        }
         
         dialog.pack();
         dialog.setVisible(true);

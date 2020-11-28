@@ -7,6 +7,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.nio.charset.StandardCharsets;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -14,8 +15,13 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.LookAndFeel;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
@@ -97,6 +103,28 @@ public class EditorFrame {
             scrollPane.setRowHeaderView(it.isSelected() ? new JLabel("numbers") : null);
         });
         menu.add(menuItem);
+
+        JMenu submenu = new JMenu("Look & Feel");
+        LookAndFeel currentLaf = UIManager.getLookAndFeel();
+        ButtonGroup group = new ButtonGroup();
+        for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+            JRadioButtonMenuItem rbMenuItem = new JRadioButtonMenuItem(info.getName());
+            group.add(rbMenuItem);
+            if (currentLaf != null && currentLaf.getName().equals(info.getName())) {
+                rbMenuItem.setSelected(true);
+            }
+            submenu.add(rbMenuItem);
+            rbMenuItem.addActionListener(e -> {
+                try {
+                    UIManager.setLookAndFeel(info.getClassName());
+                    SwingUtilities.updateComponentTreeUI(frame);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            });
+        }
+        menu.add(submenu);
+
         menu = new JMenu("Help");
         menuBar.add(menu);
         menuItem = new JMenuItem(new DebugInfoAction());
