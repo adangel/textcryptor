@@ -2,6 +2,7 @@ package org.adangel.textcryptor;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -16,12 +17,14 @@ import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.KeyStroke;
 import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
+import javax.swing.text.DefaultEditorKit;
 
 import org.adangel.textcryptor.actions.DebugInfoAction;
 import org.adangel.textcryptor.actions.ExitAction;
@@ -44,7 +47,7 @@ public class EditorFrame {
         JTextArea textArea = new JTextArea(10, 80);
         SaveAction saveAction = new SaveAction(data, textArea);
         JScrollPane scrollPane = new JScrollPane(textArea);
-
+        
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -56,6 +59,13 @@ public class EditorFrame {
             public void windowIconified(WindowEvent e) {
                 // TODO save and lock?
                 super.windowIconified(e);
+                System.out.println("Minimized");
+            }
+            
+            @Override
+            public void windowDeiconified(WindowEvent e) {
+                super.windowDeiconified(e);
+                System.out.println("Restored");
             }
         });
 
@@ -66,9 +76,14 @@ public class EditorFrame {
         menu = new JMenu("File");
         menuBar.add(menu);
         menuItem = new JMenuItem(saveAction);
+        menuItem.setAccelerator(KeyStroke.getKeyStroke('S', Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
         menu.add(menuItem);
         menu.addSeparator();
-        menuItem = new JMenuItem(exitAction);
+        menuItem = new JMenuItem("Exit");
+        menuItem.addActionListener(e -> {
+            saveAction.actionPerformed(e);
+            exitAction.actionPerformed(e);
+        });
         menu.add(menuItem);
         menu = new JMenu("Edit");
         menuBar.add(menu);
@@ -78,10 +93,16 @@ public class EditorFrame {
         menu.add(menuItem);
         menu.addSeparator();
         menuItem = new JMenuItem("Cut");
+        menuItem.addActionListener(new DefaultEditorKit.CutAction());
+        menuItem.setAccelerator(KeyStroke.getKeyStroke('X', Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
         menu.add(menuItem);
         menuItem = new JMenuItem("Copy");
+        menuItem.addActionListener(new DefaultEditorKit.CopyAction());
+        menuItem.setAccelerator(KeyStroke.getKeyStroke('C', Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
         menu.add(menuItem);
         menuItem = new JMenuItem("Paste");
+        menuItem.addActionListener(new DefaultEditorKit.PasteAction());
+        menuItem.setAccelerator(KeyStroke.getKeyStroke('V', Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
         menu.add(menuItem);
         menu.addSeparator();
         menuItem = new JMenuItem("Find...");
