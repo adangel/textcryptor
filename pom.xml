@@ -73,27 +73,14 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>3.3.0</version>
+        <artifactId>maven-jar-plugin</artifactId>
         <configuration>
-          <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef>
-          </descriptorRefs>
           <archive>
             <manifest>
               <mainClass>org.adangel.textcryptor.App</mainClass>
             </manifest>
           </archive>
         </configuration>
-        <executions>
-          <execution>
-            <id>make-assembly</id>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <!-- run with: ./mvnw exec:exec -->
@@ -104,7 +91,7 @@
           <executable>java</executable>
           <arguments>
             <argument>-jar</argument>
-            <argument>target/textcryptor-${project.version}-jar-with-dependencies.jar</argument>
+            <argument>target/textcryptor-${project.version}.jar</argument>
           </arguments>
         </configuration>
         <executions>
