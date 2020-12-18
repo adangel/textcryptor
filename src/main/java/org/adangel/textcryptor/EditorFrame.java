@@ -5,7 +5,6 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.nio.charset.StandardCharsets;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
@@ -14,7 +13,6 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -27,9 +25,8 @@ import javax.swing.event.CaretListener;
 
 import org.adangel.textcryptor.actions.DebugInfoAction;
 import org.adangel.textcryptor.actions.ExitAction;
+import org.adangel.textcryptor.actions.LoadAction;
 import org.adangel.textcryptor.actions.SaveAction;
-import org.adangel.textcryptor.storage.FileStorage;
-import org.adangel.textcryptor.storage.JarStorage;
 
 public class EditorFrame {
 
@@ -158,23 +155,8 @@ public class EditorFrame {
         frame.setLocationRelativeTo(null); // center
         frame.setVisible(true);
         
-        PasswordDialog dialog = new PasswordDialog(frame);
-        dialog.dispose();
-        if (dialog.getEnteredPassword() != null) {
-            System.out.println("after pw dialog: " + new String(dialog.getEnteredPassword()));
-            
-            JarStorage jarStorage = new JarStorage();
-            if (jarStorage.isJar()) {
-                textArea.setText(new String(jarStorage.load(), StandardCharsets.UTF_8));
-            } else {
-                FileStorage storage = new FileStorage();
-                textArea.setText(storage.load(dialog.getEnteredPassword()));
-            }
-            textArea.setCaretPosition(0); // TODO restore last position
-            
-        } else {
-            JOptionPane.showMessageDialog(frame, "No password given... exiting");
-            System.exit(0);
-        }
+        LoadAction loadAction = new LoadAction(textArea::setText);
+        loadAction.actionPerformed(null);
+        textArea.setCaretPosition(0); // TODO restore last position
     }
 }

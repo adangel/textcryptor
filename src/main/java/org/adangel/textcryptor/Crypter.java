@@ -6,7 +6,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.security.Provider.Service;
-import java.security.SecureRandom;
 import java.security.Security;
 import java.security.spec.InvalidKeySpecException;
 
@@ -24,7 +23,6 @@ import javax.crypto.spec.SecretKeySpec;
 // https://crypto.stackexchange.com/questions/26783/ciphertext-and-tag-size-and-iv-transmission-with-aes-in-gcm-mode
 // https://security.stackexchange.com/questions/179204/using-pbkdf2-for-hash-and-aes-key-generation-implementation
 public class Crypter {
-    private final char[] password = "Foo123".toCharArray();
     private static final int iterationCount = 20;
     private static final int keyLength = 256; //AES_256
     private final byte[] iv = new byte[] {1,2,3,4,5,6,7,8,9,10,11,12}; // 12 bytes

@@ -10,6 +10,12 @@ e.g. a USB thumb drive.
 *   Minimal dependencies: uses Swing, standard Java
 *   Encryption via PBKDF2 and AES
 
+## Development
+
+Build with `./mvnw clean package`
+
+Run with `./mvnw exec:exec`
+
 ## Runtime Image
 
     jlink --module-path target/textcryptor-1.0-SNAPSHOT.jar:$JAVA_HOME/jmods \

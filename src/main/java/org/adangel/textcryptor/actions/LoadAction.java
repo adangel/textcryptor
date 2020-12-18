@@ -1,7 +1,7 @@
 package org.adangel.textcryptor.actions;
 
 import java.awt.event.ActionEvent;
-import java.util.function.Supplier;
+import java.util.function.Consumer;
 
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
@@ -10,27 +10,28 @@ import org.adangel.textcryptor.Crypter;
 import org.adangel.textcryptor.PasswordDialog;
 import org.adangel.textcryptor.storage.StorageProvider;
 
-public class SaveAction extends AbstractAction {
+public class LoadAction extends AbstractAction {
     private static final long serialVersionUID = 7220898984046873384L;
 
-    private final Supplier<String> textSupplier;
+    private final Consumer<String> textConsumer;
 
-    public SaveAction(Supplier<String> textSupplier) {
-        super("Save");
-        this.textSupplier = textSupplier;
+    public LoadAction(Consumer<String> textConsumer) {
+        super("Load");
+        this.textConsumer = textConsumer;
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
         PasswordDialog dialog = new PasswordDialog(null);
         dialog.dispose();
         if (dialog.getEnteredPassword() != null) {
             System.out.println("after pw dialog: " + new String(dialog.getEnteredPassword()));
+            byte[] data = StorageProvider.getSupported().load();
             Crypter crypter = new Crypter();
-            byte[] data = crypter.encrypt(textSupplier.get(), dialog.getEnteredPassword());
-            StorageProvider.getSupported().save(data);
+            String text = crypter.decrypt(data, dialog.getEnteredPassword());
+            textConsumer.accept(text);
         } else {
-            JOptionPane.showMessageDialog(null, "No password given... exiting without saving");
+            JOptionPane.showMessageDialog(null, "No password given... exiting");
             System.exit(0);
         }
 
