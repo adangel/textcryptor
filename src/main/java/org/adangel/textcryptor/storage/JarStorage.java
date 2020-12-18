@@ -1,6 +1,5 @@
 package org.adangel.textcryptor.storage;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,11 +9,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
+
+import org.adangel.textcryptor.Data;
 
 public class JarStorage implements Storage {
 
@@ -48,34 +50,23 @@ public class JarStorage implements Storage {
     }
 
     @Override
-    public byte[] load() {
+    public void load(Data data) {
         try (JarFile jarFile = new JarFile(getJarPath().toFile());) {
             ZipEntry entry = jarFile.getEntry("data.txt");
             if (entry != null) {
                 try (InputStream inputStream = jarFile.getInputStream(entry)) {
-                    int size = 300;
-                    if (entry.getSize() > 0L) {
-                        if (entry.getSize() < Integer.MAX_VALUE) {
-                            size = (int) entry.getSize();
-                        } else {
-                            throw new RuntimeException("Filesize too big: " + entry.getSize());
-                        }
-                    }
-                    ByteArrayOutputStream out = new ByteArrayOutputStream(size);
-                    inputStream.transferTo(out);
-                    out.flush();
-                    return out.toByteArray();
+                    Properties props = new Properties();
+                    props.load(inputStream);
+                    data.fromProperties(props);
                 }
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        return new byte[0];
     }
 
     @Override
-    public void save(byte[] data) {
+    public void save(Data data) {
         try {
             Path tempJarFile = Files.createTempFile("TextCryptor-temp", ".jar");
             Path originalJarFile = getJarPath();
@@ -87,7 +78,7 @@ public class JarStorage implements Storage {
                 while (entry != null) {
                     out.putNextEntry(entry);
                     if ("data.txt".equals(entry.getName())) {
-                        out.write(data);
+                        data.asProperties().store(out, "TextCryptor");
                         written = true;
                     } else {
                         in.transferTo(out);
@@ -100,7 +91,7 @@ public class JarStorage implements Storage {
                 if (!written) {
                     entry = new JarEntry("data.txt");
                     out.putNextEntry(entry);
-                    out.write(data);
+                    data.asProperties().store(out, "TextCryptor");
                     out.close();
                 }
             } catch (FileNotFoundException e) {

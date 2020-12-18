@@ -1,38 +1,45 @@
 package org.adangel.textcryptor.actions;
 
 import java.awt.event.ActionEvent;
-import java.util.function.Supplier;
 
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
 
 import org.adangel.textcryptor.Crypter;
+import org.adangel.textcryptor.Data;
 import org.adangel.textcryptor.PasswordDialog;
 import org.adangel.textcryptor.storage.StorageProvider;
 
 public class SaveAction extends AbstractAction {
     private static final long serialVersionUID = 7220898984046873384L;
 
-    private final Supplier<String> textSupplier;
+    private final Data data;
+    private final JTextArea textArea;
 
-    public SaveAction(Supplier<String> textSupplier) {
+    public SaveAction(Data data, JTextArea textArea) {
         super("Save");
-        this.textSupplier = textSupplier;
+        this.data = data;
+        this.textArea = textArea;
     }
     
     @Override
     public void actionPerformed(ActionEvent e) {
-        PasswordDialog dialog = new PasswordDialog(null);
-        dialog.dispose();
-        if (dialog.getEnteredPassword() != null) {
-            System.out.println("after pw dialog: " + new String(dialog.getEnteredPassword()));
-            Crypter crypter = new Crypter();
-            byte[] data = crypter.encrypt(textSupplier.get(), dialog.getEnteredPassword());
-            StorageProvider.getSupported().save(data);
-        } else {
-            JOptionPane.showMessageDialog(null, "No password given... exiting without saving");
-            System.exit(0);
+        if (data.getPassword().length == 0) {
+            PasswordDialog dialog = new PasswordDialog(null);
+            dialog.dispose();
+            if (dialog.getEnteredPassword() != null) {
+                data.setPassword(dialog.getEnteredPassword());
+            } else {
+                JOptionPane.showMessageDialog(null, "No password given... exiting without saving");
+                System.exit(0);
+            }
         }
-
+        
+        data.setText(textArea.getText());
+        data.setCursorPosition(textArea.getCaretPosition());
+        Crypter crypter = new Crypter();
+        crypter.encrypt(data);
+        StorageProvider.getSupported().save(data);
     }
 }

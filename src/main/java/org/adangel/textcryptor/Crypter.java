@@ -72,34 +72,27 @@ public class Crypter {
         return bytes;
     }
 
-    public byte[] encrypt(String text, char[] pw) {
+    public void encrypt(Data data) {
         try {
             byte[] salt = createRandomSalt();
             byte[] iv = createRandomIV();
-            Cipher cipher = getCipher(Cipher.ENCRYPT_MODE, pw, salt, iv);
-            byte[] data = cipher.doFinal(text.getBytes(StandardCharsets.UTF_8));
-            byte[] result = new byte[saltLength + ivLength + data.length];
-            System.arraycopy(salt, 0, result, 0, saltLength);
-            System.arraycopy(iv, 0, result, saltLength, ivLength);
-            System.arraycopy(data, 0, result, saltLength + ivLength, data.length);
-            return result;
+            Cipher cipher = getCipher(Cipher.ENCRYPT_MODE, data.getPassword(), salt, iv);
+            data.setEncryptedText(cipher.doFinal(data.getText().getBytes(StandardCharsets.UTF_8)));
+            data.setSalt(salt);
+            data.setIv(iv);
         } catch (IllegalBlockSizeException | BadPaddingException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public String decrypt(byte[] data, char[] pw) {
+    public void decrypt(Data data) {
         try {
-            byte[] salt = new byte[saltLength];
-            byte[] iv = new byte[ivLength];
-            System.arraycopy(data, 0, salt, 0, saltLength);
-            System.arraycopy(data, saltLength, iv, 0, ivLength);
-            Cipher cipher = getCipher(Cipher.DECRYPT_MODE, pw, salt, iv);
-            byte[] clear = cipher.doFinal(data, saltLength + ivLength, data.length - saltLength - ivLength);
-            return new String(clear, StandardCharsets.UTF_8);
+            Cipher cipher = getCipher(Cipher.DECRYPT_MODE, data.getPassword(), data.getSalt(), data.getIv());
+            byte[] clear = cipher.doFinal(data.getEncryptedText());
+            data.setText(new String(clear, StandardCharsets.UTF_8));
         } catch (IllegalBlockSizeException | BadPaddingException e) {
             //throw new RuntimeException(e);
-            return "(decrypting failed: " + e.toString() + ")";
+            data.setText("(decrypting failed: " + e.toString() + ")");
         }
     }
 }

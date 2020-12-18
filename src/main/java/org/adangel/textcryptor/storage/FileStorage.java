@@ -1,39 +1,31 @@
 package org.adangel.textcryptor.storage;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Properties;
 
-import org.adangel.textcryptor.Crypter;
+import org.adangel.textcryptor.Data;
 
 public class FileStorage implements Storage {
 
-    public byte[] load() {
-        Path data = determineDataPath();
-        if (Files.exists(data)) {
-            try {
-                byte[] raw = Files.readAllBytes(data);
-                return raw;
+    public void load(Data data) {
+        Path dataPath = determineDataPath();
+        if (Files.exists(dataPath)) {
+            try (InputStream in = Files.newInputStream(dataPath)) {
+                Properties props = new Properties();
+                props.load(in);
+                data.fromProperties(props);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
-        return new byte[0];
-    }
-
-    public String load(char[] pw) {
-        byte[] raw = load();
-
-        if (raw.length == 0) {
-            return "(no data exists yet)";
-        }
-
-        Crypter crypter = new Crypter();
-        return crypter.decrypt(raw, pw);
     }
 
     private Path determineDataPath() {
@@ -52,18 +44,12 @@ public class FileStorage implements Storage {
         return data;
     }
 
-    public void save(byte[] data) {
+    public void save(Data data) {
         Path filePath = determineDataPath();
-        try {
-            Files.write(filePath, data, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+        try (OutputStream out = Files.newOutputStream(filePath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE)) {
+            data.asProperties().store(out, "TextCryptor");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public void save(String text, char[] pw) {
-        Crypter crypter = new Crypter();
-        byte[] raw = crypter.encrypt(text, pw);
-        save(raw);
     }
 }

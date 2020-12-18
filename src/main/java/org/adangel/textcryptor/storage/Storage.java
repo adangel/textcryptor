@@ -1,8 +1,10 @@
 package org.adangel.textcryptor.storage;
 
+import org.adangel.textcryptor.Data;
+
 public interface Storage {
 
-    byte[] load();
+    void load(Data data);
 
-    void save(byte[] data);
+    void save(Data data);
 }

@@ -35,12 +35,14 @@ public class EditorFrame {
     }
 
     private void init() {
+        Data data = new Data();
+
         JFrame frame = new JFrame("TextCryptor");
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         ExitAction exitAction = new ExitAction();
 
         JTextArea textArea = new JTextArea(10, 80);
-        SaveAction saveAction = new SaveAction(textArea::getText);
+        SaveAction saveAction = new SaveAction(data, textArea);
         JScrollPane scrollPane = new JScrollPane(textArea);
 
         frame.addWindowListener(new WindowAdapter() {
@@ -155,8 +157,8 @@ public class EditorFrame {
         frame.setLocationRelativeTo(null); // center
         frame.setVisible(true);
         
-        LoadAction loadAction = new LoadAction(textArea::setText);
+        LoadAction loadAction = new LoadAction(data, textArea);
         loadAction.actionPerformed(null);
-        textArea.setCaretPosition(0); // TODO restore last position
+        textArea.setCaretPosition(data.getCursorPosition());
     }
 }
