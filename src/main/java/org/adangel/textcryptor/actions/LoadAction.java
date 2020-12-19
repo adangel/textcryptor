@@ -42,6 +42,7 @@ public class LoadAction extends AbstractAction {
             crypter.decrypt(data);
             textArea.setText(data.getText());
             textArea.setCaretPosition(data.getCursorPosition());
+            data.setDirty(false);
         }
     }
 }

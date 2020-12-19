@@ -41,5 +41,6 @@ public class SaveAction extends AbstractAction {
         Crypter crypter = new Crypter();
         crypter.encrypt(data);
         StorageProvider.getSupported().save(data);
+        data.setDirty(false);
     }
 }

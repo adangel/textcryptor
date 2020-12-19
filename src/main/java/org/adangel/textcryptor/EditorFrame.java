@@ -1,9 +1,11 @@
 package org.adangel.textcryptor;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -27,6 +29,7 @@ import javax.swing.event.CaretListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.DefaultEditorKit;
+import javax.swing.text.Element;
 import javax.swing.text.PlainDocument;
 import javax.swing.undo.UndoManager;
 
@@ -58,25 +61,47 @@ public class EditorFrame {
         SaveAction saveAction = new SaveAction(data, textArea);
         JScrollPane scrollPane = new JScrollPane(textArea);
 
+        // https://www.javaprogrammingforums.com/java-swing-tutorials/915-how-add-line-numbers-your-jtextarea.html
+        JTextArea lines = new JTextArea("1");
+        lines.setBackground(Color.LIGHT_GRAY);
+        lines.setEditable(false);
+
         document.addUndoableEditListener(undoManager);
         document.addDocumentListener(new DocumentListener() {
-            
+            private String getLinesText() {
+                int caretPosition = document.getLength();
+                Element root = document.getDefaultRootElement();
+                StringBuilder text = new StringBuilder("1");
+                text.append(System.lineSeparator());
+                for (int i = 2; i < root.getElementIndex(caretPosition) + 2; i++) {
+                    text.append(i);
+                    text.append(System.lineSeparator());
+                }
+                return text.toString();
+            }
+
             @Override
             public void removeUpdate(DocumentEvent e) {
                 undoAction.setEnabled(undoManager.canUndo());
                 redoAction.setEnabled(undoManager.canRedo());
+                lines.setText(getLinesText());
+                data.setDirty(true);
             }
             
             @Override
             public void insertUpdate(DocumentEvent e) {
                 undoAction.setEnabled(undoManager.canUndo());
                 redoAction.setEnabled(undoManager.canRedo());
+                lines.setText(getLinesText());
+                data.setDirty(true);
             }
             
             @Override
             public void changedUpdate(DocumentEvent e) {
                 undoAction.setEnabled(undoManager.canUndo());
                 redoAction.setEnabled(undoManager.canRedo());
+                lines.setText(getLinesText());
+                data.setDirty(true);
             }
         });
         
@@ -146,17 +171,35 @@ public class EditorFrame {
         menu = new JMenu("Settings");
         menuBar.add(menu);
         menuItem = new JMenuItem("Increase Font");
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        menuItem.addActionListener((e) -> {
+            int size = textArea.getFont().getSize();
+            Font bigger = new Font(Font.MONOSPACED, Font.PLAIN, size + 2);
+            textArea.setFont(bigger);
+            lines.setFont(bigger);
+        });
         menu.add(menuItem);
         menuItem = new JMenuItem("Decrease Font");
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        menuItem.addActionListener((e) -> {
+            int size = textArea.getFont().getSize();
+            Font smaller = new Font(Font.MONOSPACED, Font.PLAIN, size - 2);
+            textArea.setFont(smaller);
+            lines.setFont(smaller);
+        });
         menu.add(menuItem);
         menuItem = new JCheckBoxMenuItem("Wrap");
         menuItem.setSelected(true);
+        menuItem.addActionListener((e) -> {
+            JCheckBoxMenuItem m = (JCheckBoxMenuItem) e.getSource();
+            textArea.setLineWrap(m.isSelected());
+        });
         menu.add(menuItem);
         menuItem = new JCheckBoxMenuItem("Show Linenumbers");
         menuItem.setSelected(true);
         menuItem.addActionListener((e) -> {
-            JMenuItem it = (JMenuItem)e.getSource();
-            scrollPane.setRowHeaderView(it.isSelected() ? new JLabel("numbers") : null);
+            JMenuItem it = (JMenuItem) e.getSource();
+            scrollPane.setRowHeaderView(it.isSelected() ? lines : null);
         });
         menu.add(menuItem);
 
@@ -196,18 +239,20 @@ public class EditorFrame {
         frame.getContentPane().add(statusBar, BorderLayout.SOUTH);
 
         textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        lines.setFont(textArea.getFont());
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
         textArea.addCaretListener(new CaretListener() {
-            
             @Override
             public void caretUpdate(CaretEvent e) {
-                statusBar.setText("CaretEvent: " + e.getDot());
-                
+                int lineIndex = document.getDefaultRootElement().getElementIndex(e.getDot());
+                int startLine = document.getDefaultRootElement().getElement(lineIndex).getStartOffset();
+                statusBar.setText(String.format("%d:%d (%d)%s", lineIndex + 1, e.getDot() - startLine + 1, e.getDot(),
+                        data.isDirty() ? " dirty" : ""));
             }
         });
         
-        scrollPane.setRowHeaderView(new JLabel("row header"));
+        scrollPane.setRowHeaderView(lines);
         frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
  
         frame.pack();

@@ -11,6 +11,15 @@ public class Data {
     private char[] password = new char[0];
     private byte[] salt = new byte[0];
     private byte[] iv = new byte[0];
+    private boolean dirty;
+    
+    public boolean isDirty() {
+        return dirty;
+    }
+    
+    public void setDirty(boolean dirty) {
+        this.dirty = dirty;
+    }
     
     public void setText(String text) {
         this.text = text;
