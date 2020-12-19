@@ -138,6 +138,10 @@ public class EditorFrame {
         menu.add(menuItem);
         menu.addSeparator();
         menuItem = new JMenuItem("Find...");
+        menuItem.setAccelerator(KeyStroke.getKeyStroke('F', Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        menuItem.addActionListener((e) -> {
+            new SearchDialog(frame, textArea);
+        });
         menu.add(menuItem);
         menu = new JMenu("Settings");
         menuBar.add(menu);
