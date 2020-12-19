@@ -24,12 +24,18 @@ import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.text.DefaultEditorKit;
+import javax.swing.text.PlainDocument;
+import javax.swing.undo.UndoManager;
 
 import org.adangel.textcryptor.actions.DebugInfoAction;
 import org.adangel.textcryptor.actions.ExitAction;
 import org.adangel.textcryptor.actions.LoadAction;
+import org.adangel.textcryptor.actions.RedoAction;
 import org.adangel.textcryptor.actions.SaveAction;
+import org.adangel.textcryptor.actions.UndoAction;
 
 public class EditorFrame {
 
@@ -44,9 +50,35 @@ public class EditorFrame {
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         ExitAction exitAction = new ExitAction();
 
-        JTextArea textArea = new JTextArea(10, 80);
+        PlainDocument document = new PlainDocument();
+        UndoManager undoManager = new UndoManager();
+        UndoAction undoAction = new UndoAction(undoManager);
+        RedoAction redoAction = new RedoAction(undoManager);
+        JTextArea textArea = new JTextArea(document, null, 10, 80);
         SaveAction saveAction = new SaveAction(data, textArea);
         JScrollPane scrollPane = new JScrollPane(textArea);
+
+        document.addUndoableEditListener(undoManager);
+        document.addDocumentListener(new DocumentListener() {
+            
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                undoAction.setEnabled(undoManager.canUndo());
+                redoAction.setEnabled(undoManager.canRedo());
+            }
+            
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                undoAction.setEnabled(undoManager.canUndo());
+                redoAction.setEnabled(undoManager.canRedo());
+            }
+            
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                undoAction.setEnabled(undoManager.canUndo());
+                redoAction.setEnabled(undoManager.canRedo());
+            }
+        });
         
         frame.addWindowListener(new WindowAdapter() {
             @Override
@@ -87,9 +119,9 @@ public class EditorFrame {
         menu.add(menuItem);
         menu = new JMenu("Edit");
         menuBar.add(menu);
-        menuItem = new JMenuItem("Undo");
+        menuItem = new JMenuItem(undoAction);
         menu.add(menuItem);
-        menuItem = new JMenuItem("Redo");
+        menuItem = new JMenuItem(redoAction);
         menu.add(menuItem);
         menu.addSeparator();
         menuItem = new JMenuItem("Cut");
