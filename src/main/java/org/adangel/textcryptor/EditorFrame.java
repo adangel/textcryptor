@@ -1,7 +1,6 @@
 package org.adangel.textcryptor;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -29,7 +28,6 @@ import javax.swing.event.CaretListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.DefaultEditorKit;
-import javax.swing.text.Element;
 import javax.swing.text.PlainDocument;
 import javax.swing.undo.UndoManager;
 
@@ -61,30 +59,14 @@ public class EditorFrame {
         SaveAction saveAction = new SaveAction(data, textArea);
         JScrollPane scrollPane = new JScrollPane(textArea);
 
-        // https://www.javaprogrammingforums.com/java-swing-tutorials/915-how-add-line-numbers-your-jtextarea.html
-        JTextArea lines = new JTextArea("1");
-        lines.setBackground(Color.LIGHT_GRAY);
-        lines.setEditable(false);
+        LineNumbers lines = new LineNumbers(textArea);
 
         document.addUndoableEditListener(undoManager);
         document.addDocumentListener(new DocumentListener() {
-            private String getLinesText() {
-                int caretPosition = document.getLength();
-                Element root = document.getDefaultRootElement();
-                StringBuilder text = new StringBuilder("1");
-                text.append(System.lineSeparator());
-                for (int i = 2; i < root.getElementIndex(caretPosition) + 2; i++) {
-                    text.append(i);
-                    text.append(System.lineSeparator());
-                }
-                return text.toString();
-            }
-
             @Override
             public void removeUpdate(DocumentEvent e) {
                 undoAction.setEnabled(undoManager.canUndo());
                 redoAction.setEnabled(undoManager.canRedo());
-                lines.setText(getLinesText());
                 data.setDirty(true);
             }
             
@@ -92,7 +74,6 @@ public class EditorFrame {
             public void insertUpdate(DocumentEvent e) {
                 undoAction.setEnabled(undoManager.canUndo());
                 redoAction.setEnabled(undoManager.canRedo());
-                lines.setText(getLinesText());
                 data.setDirty(true);
             }
             
@@ -100,7 +81,6 @@ public class EditorFrame {
             public void changedUpdate(DocumentEvent e) {
                 undoAction.setEnabled(undoManager.canUndo());
                 redoAction.setEnabled(undoManager.canRedo());
-                lines.setText(getLinesText());
                 data.setDirty(true);
             }
         });
