@@ -24,8 +24,6 @@ import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.DefaultEditorKit;
@@ -276,19 +274,10 @@ public class EditorFrame {
 
         frame.getContentPane().setLayout(new BorderLayout());
 
-        JLabel statusBar = new JLabel("Statusbar...");
+        JLabel statusBar = new StatusBar(data, textArea, frame);
         frame.getContentPane().add(statusBar, BorderLayout.SOUTH);
 
         textArea.setWrapStyleWord(true);
-        textArea.addCaretListener(new CaretListener() {
-            @Override
-            public void caretUpdate(CaretEvent e) {
-                int lineIndex = document.getDefaultRootElement().getElementIndex(e.getDot());
-                int startLine = document.getDefaultRootElement().getElement(lineIndex).getStartOffset();
-                statusBar.setText(String.format("%d:%d (%d)%s", lineIndex + 1, e.getDot() - startLine + 1, e.getDot(),
-                        data.isDirty() ? " dirty" : ""));
-            }
-        });
 
         frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
 
@@ -296,15 +285,11 @@ public class EditorFrame {
         frame.setLocationRelativeTo(null); // center
         frame.setVisible(true);
 
-//        scrollPane.setRowHeaderView(lines);
-
         LoadAction loadAction = new LoadAction(data, textArea);
         loadAction.actionPerformed(null);
 
         // restore settings
         scrollPane.setRowHeaderView(data.isLineNumbers() ? lines : null);
         lines.setFont(textArea.getFont());
-        // lines.updateLinesText();
-//        textArea.setCaretPosition(data.getCursorPosition());
     }
 }
