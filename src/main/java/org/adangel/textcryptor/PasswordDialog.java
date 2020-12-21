@@ -92,7 +92,7 @@ public class PasswordDialog extends JDialog {
         if (change) {
             KeyAdapter keyListener = new KeyAdapter() {
                 @Override
-                public void keyTyped(KeyEvent e) {
+                public void keyReleased(KeyEvent e) {
                     okButton.setEnabled(Arrays.equals(passwordField.getPassword(), repeat.getPassword())
                             && passwordField.getPassword().length > 0);
                 }
