@@ -46,7 +46,6 @@ import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.PlainDocument;
 import javax.swing.undo.UndoManager;
 
-import org.adangel.textcryptor.actions.DebugInfoAction;
 import org.adangel.textcryptor.actions.ExitAction;
 import org.adangel.textcryptor.actions.LoadAction;
 import org.adangel.textcryptor.actions.RedoAction;
@@ -280,10 +279,9 @@ public class EditorFrame {
         menu = new JMenu("Help");
         menu.setMnemonic('H');
         menuBar.add(menu);
-        menuItem = new JMenuItem(new DebugInfoAction());
-        menu.add(menuItem);
         menuItem = new JMenuItem("About...");
         menuItem.setMnemonic('A');
+        menuItem.addActionListener(e -> new AboutDialog(frame));
         menu.add(menuItem);
 
         frame.setJMenuBar(menuBar);

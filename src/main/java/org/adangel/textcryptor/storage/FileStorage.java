@@ -31,6 +31,11 @@ import org.adangel.textcryptor.Data;
 
 public class FileStorage implements Storage {
 
+    @Override
+    public String toString() {
+        return "FileStorage: " + determineDataPath();
+    }
+
     public void load(Data data) {
         Path dataPath = determineDataPath();
         if (Files.exists(dataPath)) {
@@ -45,24 +50,25 @@ public class FileStorage implements Storage {
     }
 
     private Path determineDataPath() {
-        URL url = FileStorage.class.getClassLoader().getResource(FileStorage.class.getName().replaceAll("\\.", "/") + ".class");
+        URL url = FileStorage.class.getClassLoader()
+                .getResource(FileStorage.class.getName().replaceAll("\\.", "/") + ".class");
         String resourceUrl = url.toExternalForm();
         if (!resourceUrl.startsWith("file:")) {
             throw new UnsupportedOperationException("Don't know how to deal with " + resourceUrl);
         }
-        
+
         Path path = Paths.get(URI.create(resourceUrl)).getParent();
         if (!Files.isDirectory(path)) {
             throw new RuntimeException("Directoy " + path + " does not exist");
         }
         Path data = path.resolve("data.txt");
-        System.out.println("data path: " + data);
         return data;
     }
 
     public void save(Data data) {
         Path filePath = determineDataPath();
-        try (OutputStream out = Files.newOutputStream(filePath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE)) {
+        try (OutputStream out = Files.newOutputStream(filePath, StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE)) {
             data.asProperties().store(out, "TextCryptor");
         } catch (IOException e) {
             throw new RuntimeException(e);

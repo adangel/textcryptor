@@ -36,20 +36,17 @@ import org.adangel.textcryptor.Data;
 
 public class JarStorage implements Storage {
 
-    public JarStorage() {
-        if (isJar()) {
-            System.out.println("Valid JAR storage");
-        } else {
-            System.out.println("Not a Jar file... Invalid ...");
-        }
-    }
-
     private String getOwnUrl() {
         Class<JarStorage> clazz = JarStorage.class;
         // e.g.
         // jar:file:/usr/local/lib/textcryptor-1.0-SNAPSHOT-jar-with-dependencies.jar!/org/adangel/textcryptor/storage/JarStorage.class
         URL url = clazz.getClassLoader().getResource(clazz.getName().replaceAll("\\.", "/") + ".class");
         return url.toExternalForm();
+    }
+
+    @Override
+    public String toString() {
+        return "JarStorage: " + getOwnUrl();
     }
 
     public boolean isJar() {
@@ -61,7 +58,6 @@ public class JarStorage implements Storage {
         url = url.substring("jar:".length(), url.indexOf('!'));
         URI fileUri = URI.create(url);
         Path path = Path.of(fileUri);
-        System.out.println("Determined file: " + path);
         return path;
     }
 
@@ -87,7 +83,10 @@ public class JarStorage implements Storage {
             Path tempJarFile = Files.createTempFile("TextCryptor-temp", ".jar");
             Path originalJarFile = getJarPath();
             try (JarInputStream in = new JarInputStream(Files.newInputStream(originalJarFile, StandardOpenOption.READ));
-                 JarOutputStream out = new JarOutputStream(Files.newOutputStream(tempJarFile, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE), in.getManifest());) {
+                    JarOutputStream out = new JarOutputStream(
+                            Files.newOutputStream(tempJarFile, StandardOpenOption.CREATE,
+                                    StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE),
+                            in.getManifest());) {
 
                 JarEntry entry = in.getNextJarEntry();
                 boolean written = false;
@@ -103,7 +102,7 @@ public class JarStorage implements Storage {
                     out.closeEntry();
                     entry = in.getNextJarEntry();
                 }
-                
+
                 if (!written) {
                     entry = new JarEntry("data.txt");
                     out.putNextEntry(entry);

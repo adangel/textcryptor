@@ -93,6 +93,9 @@ public class LineNumbers extends JTextArea {
                     if (endOffset >= textArea.getDocument().getLength()) {
                         endOffset = textArea.getDocument().getLength() - 1;
                     }
+                    if (endOffset < 0) {
+                        endOffset = 0;
+                    }
                     try {
                         Rectangle2D start = textArea.modelToView2D(startOffset);
                         Rectangle2D end = textArea.modelToView2D(endOffset);

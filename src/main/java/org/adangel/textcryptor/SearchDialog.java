@@ -39,7 +39,7 @@ public class SearchDialog extends JDialog {
     public SearchDialog(JFrame owner, JTextArea textArea) {
         super(owner, false);
         setTitle("Find...");
-        
+
         JTextField input = new JTextField(10);
         JLabel label = new JLabel("Find:");
         label.setLabelFor(input);
@@ -67,12 +67,12 @@ public class SearchDialog extends JDialog {
                 }
             }
         });
-        
+
         JPanel inputPane = new JPanel();
         inputPane.setLayout(new FlowLayout(FlowLayout.TRAILING));
         inputPane.add(label);
         inputPane.add(input);
-        
+
         JButton find = new JButton("Find");
         find.addActionListener(findAction);
         JButton cancel = new JButton("Cancel");
@@ -96,7 +96,6 @@ public class SearchDialog extends JDialog {
                 input.requestFocusInWindow();
             }
         });
-
 
         pack();
         setLocationRelativeTo(owner);

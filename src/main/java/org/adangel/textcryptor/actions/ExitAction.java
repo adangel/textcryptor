@@ -29,7 +29,6 @@ public class ExitAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        System.out.println("Exiting...");
         System.exit(0);
     }
 }
