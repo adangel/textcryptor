@@ -5,6 +5,8 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -40,6 +42,15 @@ public class SearchDialog extends JDialog {
             }
         };
         input.addActionListener(findAction);
+        input.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    SearchDialog.this.setVisible(false);
+                    SearchDialog.this.dispose();
+                }
+            }
+        });
         
         JPanel inputPane = new JPanel();
         inputPane.setLayout(new FlowLayout(FlowLayout.TRAILING));

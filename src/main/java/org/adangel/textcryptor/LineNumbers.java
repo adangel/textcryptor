@@ -3,6 +3,7 @@ package org.adangel.textcryptor;
 import java.awt.Color;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.geom.Rectangle2D;
 
 import javax.swing.JTextArea;
 import javax.swing.event.CaretEvent;
@@ -58,9 +59,7 @@ public class LineNumbers extends JTextArea {
     }
 
     public void updateLinesText() {
-        int width = textArea.getWidth();
-        int columnWidth = textArea.getFontMetrics(textArea.getFont()).charWidth('m');
-        int columnsPerLine = width / columnWidth;
+        int lineHeight = textArea.getFontMetrics(textArea.getFont()).getHeight();
         boolean lineWrap = textArea.getLineWrap();
 
         StringBuilder text = new StringBuilder();
@@ -70,15 +69,29 @@ public class LineNumbers extends JTextArea {
             text.append(formatNumber(i + 1, lines));
 
             if (lineWrap) {
-                Element line = root.getElement(i);
-                int lineLength = line.getEndOffset() - line.getStartOffset();
-                int emptyLines = lineLength / columnsPerLine;
-                for (int j = 0; j < emptyLines; j++) {
-                    text.append(System.lineSeparator());
+                try {
+                    Element line = root.getElement(i);
+                    int startOffset = line.getStartOffset();
+                    int endOffset = line.getEndOffset();
+                    if (endOffset >= textArea.getDocument().getLength()) {
+                        endOffset = textArea.getDocument().getLength() - 1;
+                    }
+                    Rectangle2D start = textArea.modelToView2D(startOffset);
+                    Rectangle2D end = textArea.modelToView2D(endOffset);
+                    int emptyLines = (int) ((end.getY() - start.getY()) / lineHeight) - 1;
+                    for (int j = 0; j < emptyLines; j++) {
+                        text.append(System.lineSeparator());
+                    }
+                } catch (BadLocationException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
                 }
+
             }
         }
         setText(text.toString());
+        currentLineHighlight = null;
+        getHighlighter().removeAllHighlights();
         updateCurrentLine();
     }
 
@@ -98,6 +111,10 @@ public class LineNumbers extends JTextArea {
         String number = formatNumber(lineNumber, String.valueOf(root.getElementCount()));
         int start = getText().indexOf(number);
         int end = start + number.length() - 1;
+
+        if (start < 0 || end < 0) {
+            return;
+        }
 
         try {
             if (currentLineHighlight == null) {

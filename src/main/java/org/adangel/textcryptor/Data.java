@@ -2,88 +2,146 @@ package org.adangel.textcryptor;
 
 import java.util.Base64;
 import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.Flow.Publisher;
+import java.util.concurrent.Flow.Subscriber;
 
-public class Data {
+import javax.swing.UIManager;
+
+public class Data implements Publisher<Data> {
+    private static final String PROP_IV = "iv";
+    private static final String PROP_SALT = "salt";
+    private static final String PROP_CURSOR_POSITION = "cursorPosition";
+    private static final String PROP_ENCRYPTED_TEXT = "encryptedText";
+    private static final String PROP_FONT_SIZE = "fontSize";
+    private static final String PROP_LINE_WRAP = "lineWrap";
+    private static final String PROP_LINE_NUMBERS = "lineNumbers";
+    private static final String PROP_LOOK_AND_FEEL = "lookAndFeel";
 
     private String text = "";
-    private int cursorPosition;
-    private byte[] encryptedText = new byte[0];
-    private char[] password = new char[0];
-    private byte[] salt = new byte[0];
-    private byte[] iv = new byte[0];
     private boolean dirty;
-    
+    private char[] password = new char[0];
+
+    private Set<Subscriber<? super Data>> subscribers = new CopyOnWriteArraySet<>();
+
+    @Override
+    public void subscribe(Subscriber<? super Data> subscriber) {
+        subscribers.add(subscriber);
+    }
+
+    private void publish() {
+        subscribers.forEach(s -> s.onNext(this));
+    }
+
+    private final Properties properties = new Properties();
+
     public boolean isDirty() {
         return dirty;
     }
-    
+
     public void setDirty(boolean dirty) {
         this.dirty = dirty;
+        publish();
     }
-    
+
     public void setText(String text) {
         this.text = text;
-        this.encryptedText = new byte[0];
+        properties.remove(PROP_ENCRYPTED_TEXT);
+        publish();
     }
-    
+
     public String getText() {
         return text;
     }
-    
+
     public void setCursorPosition(int cursorPosition) {
-        this.cursorPosition = cursorPosition;
+        System.out.println("New cursor position: " + cursorPosition);
+        properties.setProperty(PROP_CURSOR_POSITION, String.valueOf(cursorPosition));
+        publish();
     }
-    
+
     public int getCursorPosition() {
-        return cursorPosition;
+        return Integer.parseInt(properties.getProperty(PROP_CURSOR_POSITION, "0"));
     }
-    
+
     public void setEncryptedText(byte[] encryptedText) {
-        this.encryptedText = encryptedText;
+        properties.setProperty(PROP_ENCRYPTED_TEXT, Base64.getEncoder().encodeToString(encryptedText));
         this.text = "";
     }
-    
+
     public byte[] getEncryptedText() {
-        return encryptedText;
+        return Base64.getDecoder().decode(properties.getProperty(PROP_ENCRYPTED_TEXT, ""));
     }
-    
+
     public void setPassword(char[] password) {
         this.password = password;
     }
-    
+
     public char[] getPassword() {
         return password;
     }
-    
+
     public void setSalt(byte[] salt) {
-        this.salt = salt;
+        properties.setProperty(PROP_SALT, Base64.getEncoder().encodeToString(salt));
     }
-    
+
     public byte[] getSalt() {
-        return salt;
+        return Base64.getDecoder().decode(properties.getProperty(PROP_SALT, ""));
     }
-    
+
     public void setIv(byte[] iv) {
-        this.iv = iv;
+        properties.setProperty(PROP_IV, Base64.getEncoder().encodeToString(iv));
     }
-    
+
     public byte[] getIv() {
-        return iv;
+        return Base64.getDecoder().decode(properties.getProperty(PROP_IV, ""));
     }
-    
+
+    public int getFontSize() {
+        return Integer.parseInt(properties.getProperty(PROP_FONT_SIZE, "12"));
+    }
+
+    public void setFontSize(int fontSize) {
+        properties.setProperty(PROP_FONT_SIZE, String.valueOf(fontSize));
+        publish();
+    }
+
+    public boolean isLineWrap() {
+        return Boolean.parseBoolean(properties.getProperty(PROP_LINE_WRAP, Boolean.TRUE.toString()));
+    }
+
+    public void setLineWrap(boolean lineWrap) {
+        properties.setProperty(PROP_LINE_WRAP, Boolean.toString(lineWrap));
+        publish();
+    }
+
+    public boolean isLineNumbers() {
+        return Boolean.parseBoolean(properties.getProperty(PROP_LINE_NUMBERS, Boolean.TRUE.toString()));
+    }
+
+    public void setLineNumbers(boolean lineNumbers) {
+        properties.setProperty(PROP_LINE_NUMBERS, Boolean.toString(lineNumbers));
+        publish();
+    }
+
+    public String getLookAndFeel() {
+        return properties.getProperty(PROP_LOOK_AND_FEEL, UIManager.getSystemLookAndFeelClassName());
+    }
+
+    public void setLookAndFeel(String lookAndFeel) {
+        properties.setProperty(PROP_LOOK_AND_FEEL, lookAndFeel);
+        publish();
+    }
+
     public Properties asProperties() {
-        Properties properties = new Properties();
-        properties.setProperty("cursorPosition", String.valueOf(cursorPosition));
-        properties.setProperty("encryptedText", Base64.getEncoder().encodeToString(encryptedText));
-        properties.setProperty("salt", Base64.getEncoder().encodeToString(salt));
-        properties.setProperty("iv", Base64.getEncoder().encodeToString(iv));
-        return properties;
+        Properties copy = new Properties();
+        copy.putAll(properties);
+        return copy;
     }
-    
+
     public void fromProperties(Properties properties) {
-        this.cursorPosition = Integer.parseInt(properties.getProperty("cursorPosition", "0"));
-        this.encryptedText = Base64.getDecoder().decode(properties.getProperty("encryptedText", ""));
-        this.salt = Base64.getDecoder().decode(properties.getProperty("salt", ""));
-        this.iv = Base64.getDecoder().decode(properties.getProperty("iv", ""));
+        this.properties.putAll(properties);
+        publish();
     }
 }

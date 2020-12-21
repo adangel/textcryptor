@@ -35,7 +35,6 @@ public class SaveAction extends AbstractAction {
                 System.exit(0);
             }
         }
-        
         data.setText(textArea.getText());
         data.setCursorPosition(textArea.getCaretPosition());
         Crypter crypter = new Crypter();

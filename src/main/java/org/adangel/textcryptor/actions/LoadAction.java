@@ -1,5 +1,6 @@
 package org.adangel.textcryptor.actions;
 
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
@@ -40,8 +41,11 @@ public class LoadAction extends AbstractAction {
         if (data.getEncryptedText().length > 0) {
             Crypter crypter = new Crypter();
             crypter.decrypt(data);
+            textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, data.getFontSize()));
+            textArea.setLineWrap(data.isLineWrap());
             textArea.setText(data.getText());
             textArea.setCaretPosition(data.getCursorPosition());
+            textArea.requestFocus();
             data.setDirty(false);
         }
     }

@@ -69,14 +69,14 @@ public class EditorFrame {
                 redoAction.setEnabled(undoManager.canRedo());
                 data.setDirty(true);
             }
-            
+
             @Override
             public void insertUpdate(DocumentEvent e) {
                 undoAction.setEnabled(undoManager.canUndo());
                 redoAction.setEnabled(undoManager.canRedo());
                 data.setDirty(true);
             }
-            
+
             @Override
             public void changedUpdate(DocumentEvent e) {
                 undoAction.setEnabled(undoManager.canUndo());
@@ -84,7 +84,7 @@ public class EditorFrame {
                 data.setDirty(true);
             }
         });
-        
+
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -92,13 +92,14 @@ public class EditorFrame {
                 saveAction.actionPerformed(event);
                 exitAction.actionPerformed(event);
             }
+
             @Override
             public void windowIconified(WindowEvent e) {
                 // TODO save and lock?
                 super.windowIconified(e);
                 System.out.println("Minimized");
             }
-            
+
             @Override
             public void windowDeiconified(WindowEvent e) {
                 super.windowDeiconified(e);
@@ -106,23 +107,26 @@ public class EditorFrame {
             }
         });
 
-
         JMenuBar menuBar = new JMenuBar();
         JMenu menu;
         JMenuItem menuItem;
         menu = new JMenu("File");
+        menu.setMnemonic('F');
         menuBar.add(menu);
         menuItem = new JMenuItem(saveAction);
         menuItem.setAccelerator(KeyStroke.getKeyStroke('S', Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        menuItem.setMnemonic('S');
         menu.add(menuItem);
         menu.addSeparator();
         menuItem = new JMenuItem("Exit");
+        menuItem.setMnemonic('X');
         menuItem.addActionListener(e -> {
             saveAction.actionPerformed(e);
             exitAction.actionPerformed(e);
         });
         menu.add(menuItem);
         menu = new JMenu("Edit");
+        menu.setMnemonic('E');
         menuBar.add(menu);
         menuItem = new JMenuItem(undoAction);
         menu.add(menuItem);
@@ -132,38 +136,49 @@ public class EditorFrame {
         menuItem = new JMenuItem("Cut");
         menuItem.addActionListener(new DefaultEditorKit.CutAction());
         menuItem.setAccelerator(KeyStroke.getKeyStroke('X', Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        menuItem.setMnemonic('T');
         menu.add(menuItem);
         menuItem = new JMenuItem("Copy");
         menuItem.addActionListener(new DefaultEditorKit.CopyAction());
         menuItem.setAccelerator(KeyStroke.getKeyStroke('C', Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        menuItem.setMnemonic('C');
         menu.add(menuItem);
         menuItem = new JMenuItem("Paste");
         menuItem.addActionListener(new DefaultEditorKit.PasteAction());
         menuItem.setAccelerator(KeyStroke.getKeyStroke('V', Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        menuItem.setMnemonic('P');
         menu.add(menuItem);
         menu.addSeparator();
         menuItem = new JMenuItem("Find...");
         menuItem.setAccelerator(KeyStroke.getKeyStroke('F', Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
-        menuItem.addActionListener((e) -> {
-            new SearchDialog(frame, textArea);
-        });
+        menuItem.addActionListener((e) -> new SearchDialog(frame, textArea));
+        menuItem.setMnemonic('F');
         menu.add(menuItem);
         menu = new JMenu("Settings");
+        menu.setMnemonic('S');
         menuBar.add(menu);
         menuItem = new JMenuItem("Increase Font");
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        menuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        menuItem.setMnemonic('I');
         menuItem.addActionListener((e) -> {
             int size = textArea.getFont().getSize();
-            Font bigger = new Font(Font.MONOSPACED, Font.PLAIN, size + 2);
+            size += 2;
+            data.setFontSize(size);
+            Font bigger = new Font(Font.MONOSPACED, Font.PLAIN, size);
             textArea.setFont(bigger);
             lines.setFont(bigger);
         });
         menu.add(menuItem);
         menuItem = new JMenuItem("Decrease Font");
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        menuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        menuItem.setMnemonic('D');
         menuItem.addActionListener((e) -> {
             int size = textArea.getFont().getSize();
-            Font smaller = new Font(Font.MONOSPACED, Font.PLAIN, size - 2);
+            size -= 2;
+            data.setFontSize(size);
+            Font smaller = new Font(Font.MONOSPACED, Font.PLAIN, size);
             textArea.setFont(smaller);
             lines.setFont(smaller);
         });
@@ -173,17 +188,24 @@ public class EditorFrame {
         menuItem.addActionListener((e) -> {
             JCheckBoxMenuItem m = (JCheckBoxMenuItem) e.getSource();
             textArea.setLineWrap(m.isSelected());
+            data.setLineWrap(m.isSelected());
         });
+        menuItem.setMnemonic('W');
+        data.subscribe(new ButtonSelectedBinding(menuItem, data::isLineWrap));
         menu.add(menuItem);
         menuItem = new JCheckBoxMenuItem("Show Linenumbers");
         menuItem.setSelected(true);
         menuItem.addActionListener((e) -> {
             JMenuItem it = (JMenuItem) e.getSource();
             scrollPane.setRowHeaderView(it.isSelected() ? lines : null);
+            data.setLineNumbers(it.isSelected());
         });
+        menuItem.setMnemonic('L');
+        data.subscribe(new ButtonSelectedBinding(menuItem, data::isLineNumbers));
         menu.add(menuItem);
 
         JMenu submenu = new JMenu("Look & Feel");
+        submenu.setMnemonic('F');
         LookAndFeel currentLaf = UIManager.getLookAndFeel();
         ButtonGroup group = new ButtonGroup();
         for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
@@ -193,34 +215,57 @@ public class EditorFrame {
                 rbMenuItem.setSelected(true);
             }
             submenu.add(rbMenuItem);
+            rbMenuItem.setActionCommand(info.getClassName());
             rbMenuItem.addActionListener(e -> {
                 try {
+                    int caret = textArea.getCaretPosition();
                     UIManager.setLookAndFeel(info.getClassName());
                     SwingUtilities.updateComponentTreeUI(frame);
+                    data.setLookAndFeel(info.getClassName());
+                    textArea.setCaretPosition(caret);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             });
         }
+        data.subscribe(new AbstractSubscriber() {
+            @Override
+            public void onNext(Data item) {
+                try {
+                    if (!UIManager.getLookAndFeel().getClass().getName().equals(item.getLookAndFeel())) {
+                        System.out.println("Restoring look and feel: " + item.getLookAndFeel());
+                        UIManager.setLookAndFeel(item.getLookAndFeel());
+                        SwingUtilities.updateComponentTreeUI(frame);
+                        SwingUtilities.updateComponentTreeUI(lines);
+                        group.getElements().asIterator().forEachRemaining((b) -> {
+                            if (item.getLookAndFeel().equals(b.getActionCommand())) {
+                                b.setSelected(true);
+                            }
+                        });
+                    }
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
         menu.add(submenu);
 
         menu = new JMenu("Help");
+        menu.setMnemonic('H');
         menuBar.add(menu);
         menuItem = new JMenuItem(new DebugInfoAction());
         menu.add(menuItem);
         menuItem = new JMenuItem("About...");
+        menuItem.setMnemonic('A');
         menu.add(menuItem);
-        
+
         frame.setJMenuBar(menuBar);
-        
+
         frame.getContentPane().setLayout(new BorderLayout());
 
         JLabel statusBar = new JLabel("Statusbar...");
         frame.getContentPane().add(statusBar, BorderLayout.SOUTH);
 
-        textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
-        lines.setFont(textArea.getFont());
-        textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
         textArea.addCaretListener(new CaretListener() {
             @Override
@@ -231,16 +276,22 @@ public class EditorFrame {
                         data.isDirty() ? " dirty" : ""));
             }
         });
-        
-        scrollPane.setRowHeaderView(lines);
+
         frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
- 
+
         frame.pack();
         frame.setLocationRelativeTo(null); // center
         frame.setVisible(true);
-        
+
+//        scrollPane.setRowHeaderView(lines);
+
         LoadAction loadAction = new LoadAction(data, textArea);
         loadAction.actionPerformed(null);
-        textArea.setCaretPosition(data.getCursorPosition());
+
+        // restore settings
+        scrollPane.setRowHeaderView(data.isLineNumbers() ? lines : null);
+        lines.setFont(textArea.getFont());
+        // lines.updateLinesText();
+//        textArea.setCaretPosition(data.getCursorPosition());
     }
 }
