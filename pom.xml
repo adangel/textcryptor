@@ -11,6 +11,12 @@
   <name>textcryptor</name>
   <description>A simple texteditor that stores encrypted data in itself.</description>
   <url>https://github.com/adangel/textcryptor</url>
+  <licenses>
+    <license>
+      <name>Apache License 2.0</name>
+      <url>http://www.spdx.org/licenses/Apache-2.0</url>
+    </license>
+  </licenses>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
