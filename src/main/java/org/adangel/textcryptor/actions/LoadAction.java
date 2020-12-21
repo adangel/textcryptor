@@ -10,6 +10,7 @@ import javax.swing.JTextArea;
 import org.adangel.textcryptor.Crypter;
 import org.adangel.textcryptor.Data;
 import org.adangel.textcryptor.PasswordDialog;
+import org.adangel.textcryptor.WrongPasswordException;
 import org.adangel.textcryptor.storage.StorageProvider;
 
 public class LoadAction extends AbstractAction {
@@ -23,7 +24,7 @@ public class LoadAction extends AbstractAction {
         this.data = data;
         this.textArea = textArea;
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
         if (data.getPassword().length == 0) {
@@ -36,11 +37,18 @@ public class LoadAction extends AbstractAction {
                 System.exit(0);
             }
         }
-        
+
         StorageProvider.getSupported().load(data);
+
         if (data.getEncryptedText().length > 0) {
             Crypter crypter = new Crypter();
-            crypter.decrypt(data);
+            try {
+                crypter.decrypt(data);
+            } catch (WrongPasswordException e1) {
+                JOptionPane.showMessageDialog(null, "Wrong password - exiting...", "Wrong password",
+                        JOptionPane.ERROR_MESSAGE);
+                System.exit(0);
+            }
             textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, data.getFontSize()));
             textArea.setLineWrap(data.isLineWrap());
             textArea.setText(data.getText());

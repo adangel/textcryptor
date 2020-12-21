@@ -56,7 +56,6 @@ public class Data implements Publisher<Data> {
     }
 
     public void setCursorPosition(int cursorPosition) {
-        System.out.println("New cursor position: " + cursorPosition);
         properties.setProperty(PROP_CURSOR_POSITION, String.valueOf(cursorPosition));
         publish();
     }
@@ -126,7 +125,7 @@ public class Data implements Publisher<Data> {
     }
 
     public String getLookAndFeel() {
-        return properties.getProperty(PROP_LOOK_AND_FEEL, UIManager.getSystemLookAndFeelClassName());
+        return properties.getProperty(PROP_LOOK_AND_FEEL, UIManager.getCrossPlatformLookAndFeelClassName());
     }
 
     public void setLookAndFeel(String lookAndFeel) {

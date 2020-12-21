@@ -15,6 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -113,6 +114,18 @@ public class EditorFrame {
         menu = new JMenu("File");
         menu.setMnemonic('F');
         menuBar.add(menu);
+        menuItem = new JMenuItem("Change password");
+        menuItem.setMnemonic('P');
+        menuItem.addActionListener(e -> {
+            PasswordDialog dialog = new PasswordDialog(frame, true);
+            dialog.dispose();
+            if (dialog.getEnteredPassword() != null) {
+                data.setPassword(dialog.getEnteredPassword());
+            } else {
+                JOptionPane.showMessageDialog(null, "No password given... not changing password");
+            }
+        });
+        menu.add(menuItem);
         menuItem = new JMenuItem(saveAction);
         menuItem.setAccelerator(KeyStroke.getKeyStroke('S', Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
         menuItem.setMnemonic('S');

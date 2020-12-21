@@ -85,14 +85,13 @@ public class Crypter {
         }
     }
 
-    public void decrypt(Data data) {
+    public void decrypt(Data data) throws WrongPasswordException {
         try {
             Cipher cipher = getCipher(Cipher.DECRYPT_MODE, data.getPassword(), data.getSalt(), data.getIv());
             byte[] clear = cipher.doFinal(data.getEncryptedText());
             data.setText(new String(clear, StandardCharsets.UTF_8));
         } catch (IllegalBlockSizeException | BadPaddingException e) {
-            //throw new RuntimeException(e);
-            data.setText("(decrypting failed: " + e.toString() + ")");
+            throw new WrongPasswordException(e);
         }
     }
 }
