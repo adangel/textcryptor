@@ -46,7 +46,7 @@ public class JarStorage implements Storage {
 
     @Override
     public String toString() {
-        return "JarStorage: " + getOwnUrl();
+        return "JarStorage: " + getJarPath() + "!/data.txt";
     }
 
     public boolean isJar() {
