@@ -41,6 +41,10 @@ public class SaveAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        if (!data.isDirty()) {
+            return;
+        }
+
         if (data.getPassword().length == 0) {
             PasswordDialog dialog = new PasswordDialog(null, true);
             dialog.dispose();

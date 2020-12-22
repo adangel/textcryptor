@@ -1,14 +1,17 @@
 # TextCryptor
 
+![logo](src/main/resources/icons/text-file-icon-64.png)
+
 Simple text editor written in Java that
-stores the text encrypted inside itself.
-You only need to copy the complete jar onto
-e.g. a USB thumb drive.
+stores the text password protected and encrypted inside
+itself in the jar file (linux only).
+You only need to copy the complete jar onto e.g. a USB thumb drive.
+Alternatively it supports reading/writing a normal file.
 
 ## Features
 
 *   Minimal dependencies: uses Swing, standard Java
-*   Encryption via PBKDF2 and AES
+*   Encryption via PBKDF2 and AES256
 
 ## Development
 
@@ -24,6 +27,11 @@ Run with `./mvnw exec:exec`
       --output jlink-app
 
 Then run it with: `jlink-app/bin/textcryptor`
+
+## Icon
+
+The text file icon is from: https://freeicons.io/document-icon/text-file-icon-icon-25499
+(Creative Commons(Attribution-NonCommercial 3.0 unported))
 
 ## License
 

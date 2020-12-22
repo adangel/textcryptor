@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -56,11 +57,14 @@ public class AboutDialog extends JDialog {
             this.setVisible(false);
             this.dispose();
         });
+        ImageIcon imageIcon = new ImageIcon(AboutDialog.class.getResource("/icons/text-file-icon-256.png"));
+        JLabel icon = new JLabel(imageIcon);
 
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(header, BorderLayout.NORTH);
+        getContentPane().add(icon, BorderLayout.WEST);
         getContentPane().add(main, BorderLayout.CENTER);
         getContentPane().add(buttons, BorderLayout.SOUTH);
 
