@@ -38,17 +38,17 @@ public class SaveAction extends AbstractAction {
         this.data = data;
         this.textArea = textArea;
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
         if (data.getPassword().length == 0) {
-            PasswordDialog dialog = new PasswordDialog(null);
+            PasswordDialog dialog = new PasswordDialog(null, true);
             dialog.dispose();
             if (dialog.getEnteredPassword() != null) {
                 data.setPassword(dialog.getEnteredPassword());
             } else {
-                JOptionPane.showMessageDialog(null, "No password given... exiting without saving");
-                System.exit(0);
+                JOptionPane.showMessageDialog(null, "No password given... not saving then");
+                return;
             }
         }
         data.setText(textArea.getText());

@@ -43,20 +43,27 @@ public class LoadAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (data.getPassword().length == 0) {
-            PasswordDialog dialog = new PasswordDialog(null);
-            dialog.dispose();
-            if (dialog.getEnteredPassword() != null) {
-                data.setPassword(dialog.getEnteredPassword());
-            } else {
-                JOptionPane.showMessageDialog(null, "No password given... exiting");
-                System.exit(0);
-            }
+        try {
+            StorageProvider.getSupported().load(data);
+        } catch (UnsupportedOperationException ex) {
+            JOptionPane.showMessageDialog(null, "Couldn't load data file!" + System.lineSeparator() + ex.toString()
+                    + System.lineSeparator() + "Exiting...", "Error", JOptionPane.ERROR_MESSAGE);
+            System.exit(0);
         }
 
-        StorageProvider.getSupported().load(data);
 
         if (data.getEncryptedText().length > 0) {
+            if (data.getPassword().length == 0) {
+                PasswordDialog dialog = new PasswordDialog(null);
+                dialog.dispose();
+                if (dialog.getEnteredPassword() != null) {
+                    data.setPassword(dialog.getEnteredPassword());
+                } else {
+                    JOptionPane.showMessageDialog(null, "No password given... exiting");
+                    System.exit(0);
+                }
+            }
+
             Crypter crypter = new Crypter();
             try {
                 crypter.decrypt(data);
