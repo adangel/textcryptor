@@ -55,7 +55,7 @@ public class SaveAction extends AbstractAction {
         data.setCursorPosition(textArea.getCaretPosition());
         Crypter crypter = new Crypter();
         crypter.encrypt(data);
-        StorageProvider.getSupported().save(data);
+        StorageProvider.getSupported(data.getFile()).save(data);
         data.setDirty(false);
     }
 }

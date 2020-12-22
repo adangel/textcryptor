@@ -16,6 +16,7 @@
 
 package org.adangel.textcryptor.storage;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -30,16 +31,24 @@ import java.util.Properties;
 import org.adangel.textcryptor.Data;
 
 public class FileStorage implements Storage {
+    private final Path filePath;
+
+    public FileStorage() {
+        filePath = determineDataPath();
+    }
+
+    public FileStorage(File file) {
+        filePath = file.toPath();
+    }
 
     @Override
     public String toString() {
-        return "FileStorage: " + determineDataPath();
+        return "FileStorage: " + filePath;
     }
 
     public void load(Data data) {
-        Path dataPath = determineDataPath();
-        if (Files.exists(dataPath)) {
-            try (InputStream in = Files.newInputStream(dataPath)) {
+        if (Files.exists(filePath)) {
+            try (InputStream in = Files.newInputStream(filePath)) {
                 Properties props = new Properties();
                 props.load(in);
                 data.fromProperties(props);
@@ -66,7 +75,6 @@ public class FileStorage implements Storage {
     }
 
     public void save(Data data) {
-        Path filePath = determineDataPath();
         try (OutputStream out = Files.newOutputStream(filePath, StandardOpenOption.CREATE,
                 StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE)) {
             data.asProperties().store(out, "TextCryptor");

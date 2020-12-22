@@ -17,9 +17,7 @@
 package org.adangel.textcryptor.actions;
 
 import java.awt.Font;
-import java.awt.event.ActionEvent;
 
-import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 
@@ -27,31 +25,17 @@ import org.adangel.textcryptor.Crypter;
 import org.adangel.textcryptor.Data;
 import org.adangel.textcryptor.PasswordDialog;
 import org.adangel.textcryptor.WrongPasswordException;
-import org.adangel.textcryptor.storage.StorageProvider;
 
-public class LoadAction extends AbstractAction {
-    private static final long serialVersionUID = 7220898984046873384L;
-
+public class LoadAction {
     private final Data data;
     private final JTextArea textArea;
 
     public LoadAction(Data data, JTextArea textArea) {
-        super("Load");
         this.data = data;
         this.textArea = textArea;
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        try {
-            StorageProvider.getSupported().load(data);
-        } catch (UnsupportedOperationException ex) {
-            JOptionPane.showMessageDialog(null, "Couldn't load data file!" + System.lineSeparator() + ex.toString()
-                    + System.lineSeparator() + "Exiting...", "Error", JOptionPane.ERROR_MESSAGE);
-            System.exit(0);
-        }
-
-
+    public void load() {
         if (data.getEncryptedText().length > 0) {
             if (data.getPassword().length == 0) {
                 PasswordDialog dialog = new PasswordDialog(null);

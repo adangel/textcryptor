@@ -16,6 +16,7 @@
 
 package org.adangel.textcryptor;
 
+import java.io.File;
 import java.util.Base64;
 import java.util.Properties;
 import java.util.Set;
@@ -35,9 +36,13 @@ public class Data implements Publisher<Data> {
     private static final String PROP_LINE_NUMBERS = "lineNumbers";
     private static final String PROP_LOOK_AND_FEEL = "lookAndFeel";
 
+    private final Properties properties = new Properties();
+
     private String text = "";
     private boolean dirty;
     private char[] password = new char[0];
+
+    private File file;
 
     private Set<Subscriber<? super Data>> subscribers = new CopyOnWriteArraySet<>();
 
@@ -50,7 +55,13 @@ public class Data implements Publisher<Data> {
         subscribers.forEach(s -> s.onNext(this));
     }
 
-    private final Properties properties = new Properties();
+    public void setFile(File file) {
+        this.file = file;
+    }
+
+    public File getFile() {
+        return file;
+    }
 
     public boolean isDirty() {
         return dirty;

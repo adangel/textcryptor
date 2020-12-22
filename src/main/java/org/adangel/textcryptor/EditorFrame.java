@@ -20,12 +20,15 @@ import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -51,6 +54,8 @@ import org.adangel.textcryptor.actions.LoadAction;
 import org.adangel.textcryptor.actions.RedoAction;
 import org.adangel.textcryptor.actions.SaveAction;
 import org.adangel.textcryptor.actions.UndoAction;
+import org.adangel.textcryptor.storage.Storage;
+import org.adangel.textcryptor.storage.StorageProvider;
 
 public class EditorFrame {
 
@@ -74,6 +79,7 @@ public class EditorFrame {
         JScrollPane scrollPane = new JScrollPane(textArea);
 
         LineNumbers lines = new LineNumbers(textArea);
+        LoadAction loadAction = new LoadAction(data, textArea);
 
         document.addUndoableEditListener(undoManager);
         document.addDocumentListener(new DocumentListener() {
@@ -127,6 +133,21 @@ public class EditorFrame {
         menu = new JMenu("File");
         menu.setMnemonic('F');
         menuBar.add(menu);
+        menuItem = new JMenuItem("Open");
+        menuItem.setAccelerator(KeyStroke.getKeyStroke('O', Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+        menuItem.setMnemonic('O');
+        menuItem.addActionListener(e -> {
+            JFileChooser chooser = new JFileChooser();
+            int returnVal = chooser.showOpenDialog(frame);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                File file = chooser.getSelectedFile();
+                data.setFile(file);
+                StorageProvider.getSupported(file).load(data);
+                loadAction.load();
+            }
+        });
+        menu.add(menuItem);
+        menu.addSeparator();
         menuItem = new JMenuItem("Change password");
         menuItem.setMnemonic('P');
         menuItem.addActionListener(e -> {
@@ -139,9 +160,36 @@ public class EditorFrame {
             }
         });
         menu.add(menuItem);
-        menuItem = new JMenuItem(saveAction);
+        menu.addSeparator();
+        menuItem = new JMenuItem("Save As");
+        menuItem.setAccelerator(KeyStroke.getKeyStroke('S',
+                Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx() | InputEvent.SHIFT_DOWN_MASK));
+        menuItem.setMnemonic('A');
+        menuItem.addActionListener(e -> {
+            JFileChooser chooser = new JFileChooser();
+            int returnVal = chooser.showSaveDialog(frame);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                File file = chooser.getSelectedFile();
+                data.setFile(file);
+                saveAction.actionPerformed(e);
+            }
+        });
+        menu.add(menuItem);
+        menuItem = new JMenuItem("Save");
         menuItem.setAccelerator(KeyStroke.getKeyStroke('S', Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
         menuItem.setMnemonic('S');
+        menuItem.addActionListener(e -> {
+            Storage storage = StorageProvider.getSupported(data.getFile());
+            if (storage == null) {
+                JFileChooser chooser = new JFileChooser();
+                int returnVal = chooser.showSaveDialog(frame);
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    File file = chooser.getSelectedFile();
+                    data.setFile(file);
+                }
+            }
+            saveAction.actionPerformed(e);
+        });
         menu.add(menuItem);
         menu.addSeparator();
         menuItem = new JMenuItem("Exit");
@@ -281,7 +329,7 @@ public class EditorFrame {
         menuBar.add(menu);
         menuItem = new JMenuItem("About...");
         menuItem.setMnemonic('A');
-        menuItem.addActionListener(e -> new AboutDialog(frame));
+        menuItem.addActionListener(e -> new AboutDialog(frame, data));
         menu.add(menuItem);
 
         frame.setJMenuBar(menuBar);
@@ -299,11 +347,16 @@ public class EditorFrame {
         frame.setLocationRelativeTo(null); // center
         frame.setVisible(true);
 
-        LoadAction loadAction = new LoadAction(data, textArea);
-        loadAction.actionPerformed(null);
+        Storage storage = StorageProvider.getSupported(data.getFile());
+        if (storage != null) {
+            storage.load(data);
+            loadAction.load();
+        }
 
         // restore settings
         scrollPane.setRowHeaderView(data.isLineNumbers() ? lines : null);
         lines.setFont(textArea.getFont());
+
+        textArea.requestFocus();
     }
 }

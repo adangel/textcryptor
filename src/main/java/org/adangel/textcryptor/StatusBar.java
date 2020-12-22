@@ -22,6 +22,9 @@ import javax.swing.JTextArea;
 import javax.swing.text.Caret;
 import javax.swing.text.Document;
 
+import org.adangel.textcryptor.storage.Storage;
+import org.adangel.textcryptor.storage.StorageProvider;
+
 public class StatusBar extends JLabel {
     private static final long serialVersionUID = 6418628972512000073L;
 
@@ -41,6 +44,7 @@ public class StatusBar extends JLabel {
             }
         });
         this.textArea.addCaretListener(e -> updateStatus());
+        updateStatus();
     }
 
     private void updateStatus() {
@@ -48,8 +52,15 @@ public class StatusBar extends JLabel {
         Caret caret = textArea.getCaret();
         int lineIndex = document.getDefaultRootElement().getElementIndex(caret.getDot());
         int startLine = document.getDefaultRootElement().getElement(lineIndex).getStartOffset();
-        setText(String.format("%d:%d (%d)%s", lineIndex + 1, caret.getDot() - startLine + 1, caret.getDot(),
-                data.isDirty() ? " (unsaved changes)" : ""));
+        String text = String.format("%d:%d (%d)%s", lineIndex + 1, caret.getDot() - startLine + 1, caret.getDot(),
+                data.isDirty() ? " (unsaved changes)" : "");
+
+        Storage storage = StorageProvider.getSupported(data.getFile());
+        if (storage != null) {
+            text += " | " + storage;
+        }
+
+        setText(text);
 
         String title = frame.getTitle();
         if (data.isDirty() && title.charAt(0) != '*') {

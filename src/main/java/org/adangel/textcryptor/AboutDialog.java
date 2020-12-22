@@ -35,8 +35,11 @@ import org.adangel.textcryptor.storage.StorageProvider;
 public class AboutDialog extends JDialog {
     private static final long serialVersionUID = -1607654815876569039L;
 
-    public AboutDialog(JFrame owner) {
+    private final Data data;
+
+    public AboutDialog(JFrame owner, Data data) {
         super(owner, true);
+        this.data = data;
 
         setTitle("About TextCryptor");
 
@@ -70,7 +73,7 @@ public class AboutDialog extends JDialog {
         StringBuilder sb = new StringBuilder();
         sb.append("Version: ").append(determineVersion()).append(System.lineSeparator());
         sb.append(System.lineSeparator());
-        sb.append("Storage: ").append(System.lineSeparator()).append(StorageProvider.getSupported().toString())
+        sb.append("Storage: ").append(System.lineSeparator()).append(StorageProvider.getSupported(data.getFile()))
                 .append(System.lineSeparator());
         sb.append(System.lineSeparator());
         sb.append("License:").append(System.lineSeparator());

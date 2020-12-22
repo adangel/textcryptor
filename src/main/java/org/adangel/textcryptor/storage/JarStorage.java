@@ -50,10 +50,13 @@ public class JarStorage implements Storage {
     }
 
     public boolean isJar() {
-        return getOwnUrl().startsWith("jar:");
+        if (System.getProperty("os.name").equalsIgnoreCase("linux")) {
+            return getOwnUrl().startsWith("jar:");
+        }
+        return false;
     }
 
-    private Path getJarPath() {
+    public Path getJarPath() {
         String url = getOwnUrl();
         url = url.substring("jar:".length(), url.indexOf('!'));
         URI fileUri = URI.create(url);

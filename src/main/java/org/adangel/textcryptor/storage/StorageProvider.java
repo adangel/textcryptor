@@ -16,15 +16,22 @@
 
 package org.adangel.textcryptor.storage;
 
+import java.io.File;
+
 public class StorageProvider {
 
-    public static Storage getSupported() {
+    public static Storage getSupported(File file) {
+
         JarStorage jarStorage = new JarStorage();
-        if (jarStorage.isJar()) {
+        if (file == null && jarStorage.isJar()) {
             return jarStorage;
         }
-        
-        FileStorage fileStorage = new FileStorage();
-        return fileStorage;
+
+        if (file != null) {
+            FileStorage fileStorage = new FileStorage(file);
+            return fileStorage;
+        }
+
+        return null;
     }
 }
