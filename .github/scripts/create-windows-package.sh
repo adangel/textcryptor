@@ -22,6 +22,7 @@ jpackage --name textcryptor \
     --module-path target/textcryptor-*.jar \
     --module org.adangel.textcryptor \
     --app-version ${VERSION} \
+    --icon src/main/resources/icons/text-file-icon-64.png \
     --win-menu \
     --dest target
 

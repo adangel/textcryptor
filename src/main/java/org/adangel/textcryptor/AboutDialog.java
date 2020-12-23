@@ -76,6 +76,7 @@ public class AboutDialog extends JDialog {
     private String createAboutText() {
         StringBuilder sb = new StringBuilder();
         sb.append("Version: ").append(determineVersion()).append(System.lineSeparator());
+        sb.append("https://github.com/adangel/textcryptor").append(System.lineSeparator());
         sb.append(System.lineSeparator());
         sb.append("Storage: ").append(System.lineSeparator()).append(StorageProvider.getSupported(data.getFile()))
                 .append(System.lineSeparator());
