@@ -4,9 +4,11 @@
 
 Simple text editor written in Java that
 stores the text password protected and encrypted inside
-itself in the jar file (linux only).
+itself in the jar file.
 You only need to copy the complete jar onto e.g. a USB thumb drive.
-Alternatively it supports reading/writing a normal file.
+This unfortunately only works on linux.
+
+For other platforms you can save the (encrypted) text to a normal file.
 
 ## Features
 
@@ -18,15 +20,6 @@ Alternatively it supports reading/writing a normal file.
 Build with `./mvnw clean package`
 
 Run with `./mvnw exec:exec`
-
-## Runtime Image
-
-    jlink --module-path target/textcryptor-1.0-SNAPSHOT.jar:$JAVA_HOME/jmods \
-      --add-modules org.adangel.textcryptor \
-      --launcher textcryptor=org.adangel.textcryptor/org.adangel.textcryptor.App \
-      --output jlink-app
-
-Then run it with: `jlink-app/bin/textcryptor`
 
 ## Icon
 
