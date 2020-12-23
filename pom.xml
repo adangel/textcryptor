@@ -6,7 +6,7 @@
 
   <groupId>org.adangel.textcryptor</groupId>
   <artifactId>textcryptor</artifactId>
-  <version>1.0</version>
+  <version>1.1-SNAPSHOT</version>
 
   <name>textcryptor</name>
   <description>A simple texteditor that stores encrypted data in itself.</description>
