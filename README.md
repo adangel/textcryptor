@@ -21,6 +21,8 @@ Build with `./mvnw clean package`
 
 Run with `./mvnw exec:exec`
 
+![Build](https://github.com/adangel/textcryptor/workflows/Build/badge.svg)
+
 ## Icon
 
 The text file icon is from: https://freeicons.io/document-icon/text-file-icon-icon-25499
