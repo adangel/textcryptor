@@ -15,6 +15,7 @@ JAR_FILE=target/textcryptor-*.jar
 VERSION=$(echo $JAR_FILE)
 VERSION=${VERSION##target/textcryptor-}
 VERSION=${VERSION%%-SNAPSHOT.jar}
+VERSION=${VERSION%%.jar}
 
 # default type, e.g. a exe installer under Windows
 echo "Creating installable package..."
