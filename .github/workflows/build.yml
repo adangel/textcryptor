@@ -25,17 +25,23 @@ jobs:
       if: ${{ runner.os == 'Linux' }}
       run: .github/scripts/create-linux-package.sh
       shell: bash
+    - name: Archive jar
+      uses: actions/upload-artifact@v2
+      if: ${{ runner.os == 'Linux' }}
+      with:
+        name: textcryptor-packages
+        path: target/textcryptor*.jar
     - name: Archive debian package
       uses: actions/upload-artifact@v2
       if: ${{ runner.os == 'Linux' }}
       with:
-        name: linux-deb-package
+        name: textcryptor-packages
         path: target/textcryptor*.deb
     - name: Archive appimage package
       uses: actions/upload-artifact@v2
       if: ${{ runner.os == 'Linux' }}
       with:
-        name: linux-appimage
+        name: textcryptor-packages
         path: textcryptor-x86_64.AppImage
 
     - name: Create installable package
@@ -46,7 +52,7 @@ jobs:
       uses: actions/upload-artifact@v2
       if: ${{ runner.os == 'macOS' }}
       with:
-        name: macos-package
+        name: textcryptor-packages
         path: target/textcryptor*.dmg
 
     - name: Create installable package
@@ -57,5 +63,5 @@ jobs:
       uses: actions/upload-artifact@v2
       if: ${{ runner.os == 'Windows' }}
       with:
-        name: windows-package
+        name: textcryptor-packages
         path: target/textcryptor*.exe
